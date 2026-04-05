@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart AI Study Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="logo">SA</div>
+      <div>
+        <h1>Smart AI Study Assistant</h1>
+        <p>Study smarter with trusted sources and instant quiz practice</p>
+      </div>
+    </div>
+
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+      <span class="theme-toggle-track">
+        <span class="theme-toggle-thumb"></span>
+      </span>
+      <span id="themeLabel">Dark</span>
+    </button>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="hero-pill">Trusted sources</span>
+        <h2>Learn any topic instantly with clear, source-backed study notes</h2>
+        <p>Get concise explanations, exam-focused guidance, and a 5-question quiz with instant evaluation.</p>
+      </div>
+      <div class="hero-stats" aria-hidden="true">
+        <div class="stat-card">
+          <strong>5</strong>
+          <span>MCQs</span>
+        </div>
+        <div class="stat-card">
+          <strong>1</strong>
+          <span>Click generate</span>
+        </div>
+        <div class="stat-card">
+          <strong>0</strong>
+          <span>Backend needed</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="inputCard">
+      <div class="card-head">
+        <h3>Generate Study Pack</h3>
+        <p>Enter a topic, choose difficulty, and get source-backed study notes plus a quiz.</p>
+      </div>
+
+      <form id="studyForm" novalidate>
+        <div class="field-group">
+          <label for="topicInput">Topic</label>
+          <textarea
+            id="topicInput"
+            name="topic"
+            rows="3"
+            maxlength="90"
+            placeholder="Try: Binary Search, DBMS Normalization, Photosynthesis, CPU Scheduling"
+            required
+          ></textarea>
+          <div class="field-meta">
+            <span class="hint">Be specific for better quiz quality.</span>
+            <span id="topicCount">0/90</span>
+          </div>
+          <div class="chip-row" id="topicChips">
+            <button type="button" class="chip" data-topic="Binary Search">Binary Search</button>
+            <button type="button" class="chip" data-topic="DBMS">DBMS</button>
+            <button type="button" class="chip" data-topic="Photosynthesis">Photosynthesis</button>
+            <button type="button" class="chip" data-topic="Machine Learning">Machine Learning</button>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field-group">
+            <label for="universityInput">University (Optional)</label>
+            <input
+              id="universityInput"
+              name="university"
+              type="text"
+              maxlength="40"
+              placeholder="AKTU, CCSU, DU, IPU, JNTU, VTU"
+            />
+            <p class="helper">Optional: add your university for more relevant exam-focused guidance.</p>
+            <div class="chip-row" id="universityChips">
+              <button type="button" class="chip" data-university="AKTU">AKTU</button>
+              <button type="button" class="chip" data-university="CCSU">CCSU</button>
+              <button type="button" class="chip" data-university="DU">DU</button>
+              <button type="button" class="chip" data-university="IPU">IPU</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="difficultyInput">Difficulty</label>
+            <select id="difficultyInput" name="difficulty" required>
+              <option value="Easy">Easy</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="formMessage" class="message hidden" role="alert" aria-live="polite"></div>
+
+        <div class="button-row">
+          <button id="generateBtn" class="btn btn-primary" type="submit">Generate Study Pack</button>
+          <button id="resetBtn" class="btn btn-ghost" type="button">Try Another Topic</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="explanationCard" class="card hidden">
+      <div class="card-head">
+        <h3 id="topicTitle">Topic</h3>
+        <span id="difficultyBadge" class="badge"></span>
+      </div>
+      <p id="summaryText" class="summary-text"></p>
+      <p id="explanationText" class="body-text"></p>
+      <div class="button-row compact-row">
+        <button id="downloadTopicPdfBtn" class="btn btn-ghost" type="button">Download Topic PDF</button>
+      </div>
+    </section>
+
+    <section id="detailedCard" class="card hidden">
+      <div class="card-head">
+        <h3>Detailed Explanation</h3>
+        <p>Structured notes for deep revision</p>
+      </div>
+      <div id="detailedSections" class="detail-grid"></div>
+      <div>
+        <h4 class="subhead">Important Terms</h4>
+        <div id="termsList" class="term-list"></div>
+      </div>
+    </section>
+
+    <section id="keyPointsCard" class="card hidden">
+      <div class="card-head">
+        <h3>Key Points</h3>
+      </div>
+      <ul id="keyPointsList" class="points-list"></ul>
+    </section>
+
+    <section id="exampleCard" class="card hidden">
+      <div class="card-head">
+        <h3>Example / Analogy</h3>
+      </div>
+      <p id="exampleText" class="body-text"></p>
+    </section>
+
+    <section id="sourcesCard" class="card hidden">
+      <div class="card-head">
+        <h3>Trusted Sources</h3>
+      </div>
+      <div id="sourcesList" class="source-list"></div>
+    </section>
+
+    <section id="universityCard" class="card hidden">
+      <div class="card-head">
+        <h3>University-specific Help</h3>
+      </div>
+      <p id="universityText" class="body-text"></p>
+    </section>
+
+    <section id="quizCard" class="card hidden">
+      <div class="card-head">
+        <h3>Quiz Challenge</h3>
+        <p>Answer all 5 questions and submit for instant feedback.</p>
+      </div>
+      <div id="quizContainer" class="quiz-wrap"></div>
+      <div class="button-row">
+        <button id="submitQuizBtn" class="btn btn-primary" type="button">Submit Answers</button>
+      </div>
+    </section>
+
+    <section id="resultsCard" class="card hidden">
+      <div class="card-head">
+        <h3>Your Result</h3>
+      </div>
+
+      <div class="result-top">
+        <div class="score-ring" id="scoreRing">
+          <div class="score-ring-inner">
+            <strong id="scoreValue">0/5</strong>
+            <span id="scorePercent">0%</span>
+          </div>
+        </div>
+
+        <div>
+          <p class="summary-text" id="resultSummary">Your evaluation appears here after submission.</p>
+        </div>
+      </div>
+
+      <div id="resultDetails" class="result-details"></div>
+    </section>
+
+    <section id="pyqCard" class="card">
+      <div class="card-head">
+        <h3>PYQ Explorer (Last 10 Years)</h3>
+        <p>Find solved previous-year questions by university, subject, and topic.</p>
+      </div>
+      <p class="helper">Built-in archive is included and you can import your full university PYQ JSON for broader subject coverage.</p>
+
+      <div class="field-grid pyq-grid">
+        <div class="field-group">
+          <label for="pyqUniversityInput">University</label>
+          <input id="pyqUniversityInput" type="text" placeholder="AKTU, CCSU, DU, IPU, JNTU, VTU or any" />
+        </div>
+
+        <div class="field-group">
+          <label for="pyqSubjectInput">Subject</label>
+          <input id="pyqSubjectInput" type="text" placeholder="DBMS, Operating System, Data Structures" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="pyqTopicInput">Specific Topic (Optional)</label>
+        <input id="pyqTopicInput" type="text" placeholder="Binary Search, Deadlock, Normalization" />
+        <p class="helper">Use topic filter to get all matching PYQs from the last 10 years.</p>
+      </div>
+
+      <div class="button-row">
+        <button id="searchPyqBtn" class="btn btn-primary" type="button">Search Solved PYQ</button>
+        <button id="searchTopicPyqBtn" class="btn btn-ghost" type="button">Find Topic PYQ (10 Years)</button>
+        <button id="downloadPyqPdfBtn" class="btn btn-ghost" type="button">Download PYQ PDF</button>
+        <button id="importPyqBtn" class="btn btn-ghost" type="button">Import PYQ JSON</button>
+        <input id="pyqFileInput" type="file" accept="application/json" class="hidden" />
+      </div>
+
+      <div id="pyqMessage" class="message hidden" role="alert" aria-live="polite"></div>
+      <p id="pyqSummary" class="summary-text muted hidden"></p>
+      <div id="pyqResults" class="pyq-results hidden"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart AI Study Assistant - study notes, quizzes, and trusted references in one place
+  </footer>
+
+  <div id="loadingOverlay" class="loading-overlay hidden" aria-live="polite" aria-busy="true">
+    <div class="loader-card">
+      <div class="spinner"></div>
+      <h4>Building your study pack...</h4>
+      <p>Collecting trusted references, summary points, and quiz questions.</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
